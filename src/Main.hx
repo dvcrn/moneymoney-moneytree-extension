@@ -329,13 +329,23 @@ class Main {
 
             return {
                 balance: account.current_balance,
-                securities: Table.fromArray(positions),
-            }
-        } else {
-            var transactions = Moneytree.getTransactions(accessToken, Std.string(account.id), sinceStr, 1, 500);
+				securities: Table.fromArray(positions),
+			}
+		} else {
+			var page = 1;
+			var transactions:Array<Dynamic> = [];
+			while (true) {
+				trace("Fetching page: " + page);
+				var txs = Moneytree.getTransactions(accessToken, Std.string(account.id), sinceStr, page, 500);
+				if (txs.length == 0) {
+					break;
+				}
+				transactions = transactions.concat(txs);
+				page++;
+			}
 
-            trace("transactions");
-            trace(transactions);
+			trace("transactions");
+			trace(transactions);
 
             for (transaction in transactions) {
                 var convertedTransaction:Transaction = {
